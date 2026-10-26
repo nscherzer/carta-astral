@@ -198,6 +198,8 @@
     $('#hs-label').textContent = chart.timeKnown ? 'Casas ' + chart.houseSystem : 'Sin casas (falta la hora)';
 
     renderBig3(chart);
+    window.Lectura.render(chart, $('#lectura'));
+    if (view === 'sky') mountSky(); else if (sky) { sky.dispose(); sky = null; }
     renderPlanets(chart);
     renderAspects(chart);
     renderBalance(chart);
@@ -346,6 +348,52 @@
       console.error(e); toast('No pudimos generar la imagen en este navegador.');
     } finally { btn.disabled = false; }
   });
+
+  /* ---------- Vista 3D ---------- */
+  let view = 'wheel', sky = null, skyMode = 'inside';
+  function setView(v) {
+    view = v;
+    document.querySelectorAll('.view-tabs [data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+    $('#wheel').hidden = v !== 'wheel'; $('#wheel-legend').hidden = v !== 'wheel'; $('#sky').hidden = v !== 'sky';
+    if (v === 'sky') mountSky();
+  }
+  function skyCaption() {
+    const c = state.chart; if (!c) return;
+    const cap = $('#sky-cap');
+    if (!c.timeKnown) { cap.textContent = 'Sin hora de nacimiento: es el cielo al mediodía, así que el horizonte es solo orientativo.'; return; }
+    const s = K.SIGNS[K.signOf(c.asc)];
+    cap.innerHTML = skyMode === 'inside'
+      ? `Estás parado en ${esc(state.params.birth.label.split(',')[0])}, mirando al Este. El signo que asoma sobre el horizonte —<b>${s}</b>— es tu Ascendente. Arrastrá para mirar alrededor.`
+      : `La esfera celeste con vos en el centro. El disco es tu horizonte: lo que está debajo no se veía. La banda dorada es el zodíaco; ${s} cruza el horizonte por el Este.`;
+  }
+  async function mountSky() {
+    const stage = $('#sky-stage'), loadEl = $('#sky-loading');
+    skyCaption();
+    if (!window.Sky3D.webglOK()) { loadEl.textContent = 'Tu navegador no puede mostrar gráficos 3D. Te dejamos la rueda.'; loadEl.hidden = false; return; }
+    if (sky && sky.chart === state.chart) return;
+    if (sky) { sky.dispose(); sky = null; }
+    loadEl.hidden = false; loadEl.textContent = 'Cargando el cielo…';
+    try {
+      await window.Sky3D.load();
+      await document.fonts.load('40px Astro', '♈').catch(() => {});
+      if (view !== 'sky') return;
+      if (sky) sky.dispose();
+      sky = window.Sky3D.mount(stage, state.chart, { mode: skyMode });
+      sky.chart = state.chart;
+      window.__sky = sky;
+      loadEl.hidden = true;
+    } catch (e) {
+      console.error(e); loadEl.textContent = 'No pudimos cargar la vista 3D. Probá de nuevo más tarde.';
+    }
+  }
+  document.querySelectorAll('.view-tabs [data-view]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+  document.querySelectorAll('.seg [data-mode]').forEach((b) => b.addEventListener('click', () => {
+    skyMode = b.dataset.mode;
+    document.querySelectorAll('.seg [data-mode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    if (sky) sky.setMode(skyMode, true);
+    skyCaption();
+  }));
+  $('#sky-recenter').addEventListener('click', () => sky && sky.recenter());
 
   /* ---------- Inicio ---------- */
   $('#ornament').innerHTML = W.build(null);

@@ -6,6 +6,8 @@ App web estática para calcular y dibujar una carta natal (astrológica). Ingres
 - Tabla de planetas (Sol a Plutón, Nodo Norte medio y Quirón) con signo, grado, casa y retrogradación.
 - Aspectos agrupados (trígonos, sextiles, cuadraturas, oposiciones, conjunciones) con su orbe.
 - Equilibrio de elementos y modalidades, y los "tres grandes" (Sol, Luna, Ascendente) con una descripción breve.
+- **Cielo 3D**: la esfera celeste en el momento y lugar de nacimiento (estrellas reales hasta magnitud 5, constelaciones, eclíptica con los signos, ecuador, horizonte y planetas). Dos vistas: *desde la Tierra* (parado en el lugar, mirando al Este: el signo que asoma es el Ascendente) y *desde afuera* (el globo con vos en el centro).
+- **Lectura**: regente de la carta, fase lunar, dignidades esenciales, configuraciones (Gran Trígono, T-Cuadrada, Gran Cruz, Yod, stellium), énfasis por hemisferios, dominantes (elemento, signo y planeta) y textos breves de planetas en signo y del Sol y la Luna en casa.
 - Link para compartir (los datos van en el `#` de la URL, no se mandan a ningún servidor) y descarga de la rueda como PNG.
 
 Si no sabés la hora, la carta se calcula al mediodía, sin casas ni Ascendente.
@@ -15,6 +17,7 @@ Si no sabés la hora, la carta se calcula al mediodía, sin casas ni Ascendente.
 - **Hora → UTC:** la zona horaria IANA sale de las coordenadas (`tz-lookup`) y el desfase histórico (incluido el horario de verano, por ejemplo el de Argentina en 1989) lo calcula el navegador con `Intl.DateTimeFormat`. La carta muestra el desfase usado.
 - **Posiciones:** [Astronomy Engine](https://github.com/cosinekitty/astronomy) (longitud eclíptica aparente, zodíaco tropical). Nodo medio con la fórmula de Meeus; Quirón con una tabla heliocéntrica 1900–2060 generada con Swiss Ephemeris (`js/chiron-data.js`).
 - **Casas:** Ascendente, MC y Placidus a partir del tiempo sidéreo y la oblicuidad verdadera. Arriba de 66° de latitud se usan casas iguales.
+- **3D:** todo se dibuja en el marco del horizonte local (rotaciones de Astronomy Engine). Verificado: el Ascendente queda a 0° de altura, el MC sobre el meridiano, y los planetas y estrellas (Régulo, Espiga) vuelven a su longitud eclíptica con < 0,4′ de diferencia.
 - Validado contra Swiss Ephemeris: planetas dentro de 0,3′, Luna 0,03′, ángulos y cúspides < 0,001°.
 
 ## Correr localmente
@@ -30,5 +33,7 @@ y abrir http://localhost:8811. No hace falta compilar nada.
 - [Astronomy Engine](https://github.com/cosinekitty/astronomy) 2.1.19 (MIT), Don Cross.
 - [@photostructure/tz-lookup](https://github.com/photostructure/tz-lookup) 11.7.0 (CC0) y la base de zonas horarias IANA.
 - Búsqueda de ciudades: [Nominatim](https://nominatim.org/) / © [OpenStreetMap](https://www.openstreetmap.org/copyright) (ODbL).
+- [three.js](https://threejs.org) 0.170.0 (MIT) para la vista 3D, cargado solo al abrirla.
+- Estrellas: [HYG Database v4.1](https://github.com/astronexus/HYG-Database) (CC BY-SA 4.0); líneas de constelaciones: [Stellarium](https://stellarium.org) (cultura occidental, GPL).
 - Quirón: [Swiss Ephemeris](https://www.astro.com/swisseph/) (Astrodienst).
 - Tipografías (SIL OFL): Cormorant Garamond, Instrument Sans y un subconjunto de Noto Sans Symbols para los glifos.

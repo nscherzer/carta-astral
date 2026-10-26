@@ -89,8 +89,24 @@
 
       <div class="layout">
         <figure class="wheel-wrap">
+          <div class="view-tabs" role="tablist" aria-label="Vista">
+            <button type="button" role="tab" data-view="wheel" aria-selected="true">Rueda</button>
+            <button type="button" role="tab" data-view="sky" aria-selected="false">Cielo 3D</button>
+          </div>
           <div id="wheel"></div>
-          <figcaption class="legend">
+          <div id="sky" class="sky" hidden>
+            <div class="sky-stage" id="sky-stage"><p class="sky-loading" id="sky-loading">Cargando el cielo…</p>
+              <div class="sky-ui">
+              <div class="seg" role="group" aria-label="Punto de vista">
+                <button type="button" data-mode="inside" aria-pressed="true">Desde la Tierra</button>
+                <button type="button" data-mode="outside" aria-pressed="false">Desde afuera</button>
+              </div>
+              <button type="button" class="recenter" id="sky-recenter" aria-label="Volver a centrar">↺</button>
+            </div>
+            </div>
+            <p class="sky-cap" id="sky-cap"></p>
+          </div>
+          <figcaption class="legend" id="wheel-legend">
             <span><i class="lg soft"></i>Armónicos</span>
             <span><i class="lg tense"></i>Tensos</span>
             <span id="hs-label"></span>
@@ -101,6 +117,11 @@
           <section class="block">
             <h2>Los tres grandes</h2>
             <div class="big3" id="big3"></div>
+          </section>
+
+          <section class="block lectura">
+            <h2>Lectura</h2>
+            <div id="lectura"></div>
           </section>
 
           <section class="block">
@@ -128,7 +149,7 @@
   </main>
 
   <footer class="foot">
-    <p>Efemérides: <a href="https://github.com/cosinekitty/astronomy" target="_blank" rel="noopener">Astronomy Engine</a> · Zonas horarias: tz-lookup + IANA · Ciudades: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></p>
+    <p>Efemérides: <a href="https://github.com/cosinekitty/astronomy" target="_blank" rel="noopener">Astronomy Engine</a> · Estrellas: <a href="https://github.com/astronexus/HYG-Database" target="_blank" rel="noopener">HYG</a> · 3D: three.js · Zonas horarias: tz-lookup + IANA · Ciudades: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js" integrity="sha384-LTVHvxfbG3XHla4Lu0C0s9U18B2sBOuzJIeOoVHm2t05SOOORvMbBMEVjXrGau9g" crossorigin="anonymous"></script>
@@ -137,6 +158,8 @@
   <script src="js/astro.js"></script>
   <script src="js/texts.js"></script>
   <script src="js/wheel.js"></script>
+  <script src="js/lectura.js"></script>
+  <script src="js/sky3d.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
