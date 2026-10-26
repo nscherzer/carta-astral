@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Carta natal</title>
+  <meta name="description" content="Calculá tu carta natal: la rueda, los planetas, las casas y los aspectos del cielo en el momento en que naciste.">
+  <meta name="theme-color" content="#F6F1E7">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='none' stroke='%231F2433' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%231F2433' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%239C7428'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/noto-astro.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="./" aria-label="Inicio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><circle cx="32" cy="32" r="17"/><circle cx="32" cy="32" r="4.5" class="dot"/></svg>
+      <span>Carta natal</span>
+    </a>
+    <button class="btn ghost new" id="btn-new" type="button" hidden>← Nueva carta</button>
+  </header>
+
+  <main>
+    <!-- Formulario -->
+    <section id="form-view" class="form-view">
+      <div class="intro">
+        <div class="ornament" id="ornament" aria-hidden="true"></div>
+        <p class="eyebrow">El cielo del día en que naciste</p>
+        <h1>Tu carta natal</h1>
+        <p class="lead">Ingresá tus datos de nacimiento y calculamos la posición de cada planeta, tus casas y los aspectos entre ellos.</p>
+      </div>
+
+      <form id="form" class="card" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="f-name">Nombre</label>
+          <input id="f-name" name="name" type="text" placeholder="¿Cómo te llamás?" maxlength="60" autocomplete="given-name">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="f-date">Fecha de nacimiento</label>
+            <input id="f-date" name="date" type="date" required min="1900-01-01" max="2060-12-31">
+          </div>
+          <div class="field">
+            <label for="f-time">Hora</label>
+            <input id="f-time" name="time" type="time" required>
+          </div>
+        </div>
+        <label class="check">
+          <input id="f-notime" type="checkbox">
+          <span>No sé la hora</span>
+        </label>
+        <p class="hint" id="notime-hint" hidden>Calculamos la carta al mediodía. Sin hora no hay Ascendente ni casas, y la Luna puede variar unos grados.</p>
+
+        <div class="field place" data-place="birth">
+          <label for="f-place">Lugar de nacimiento</label>
+          <input id="f-place" type="text" placeholder="Ciudad donde naciste" required role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="f-place-list">
+          <ul class="suggest" id="f-place-list" role="listbox" hidden></ul>
+          <p class="place-meta" aria-live="polite"></p>
+        </div>
+
+        <div class="field place" data-place="live">
+          <label for="f-live">¿Dónde vivís? <span class="opt">opcional</span></label>
+          <input id="f-live" type="text" placeholder="Ciudad donde vivís hoy" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="f-live-list">
+          <ul class="suggest" id="f-live-list" role="listbox" hidden></ul>
+          <p class="place-meta" aria-live="polite"></p>
+        </div>
+
+        <p class="error" id="form-error" role="alert" hidden></p>
+        <button class="btn primary" type="submit">Generar carta</button>
+        <p class="fine">Tus datos no salen de tu navegador. La búsqueda de ciudades usa <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>.</p>
+      </form>
+    </section>
+
+    <!-- Resultado -->
+    <section id="chart-view" class="chart-view" hidden>
+      <div class="profile">
+        <p class="eyebrow">Carta natal</p>
+        <h1 id="p-name"></h1>
+        <p class="p-line" id="p-when"></p>
+        <p class="p-line" id="p-where"></p>
+        <p class="p-line muted" id="p-tz"></p>
+        <p class="p-line muted" id="p-live"></p>
+        <div class="actions">
+          <button class="btn" id="btn-share" type="button">Compartir</button>
+          <button class="btn" id="btn-png" type="button">Descargar imagen</button>
+        </div>
+        <p class="toast" id="toast" role="status" hidden></p>
+      </div>
+
+      <div class="layout">
+        <figure class="wheel-wrap">
+          <div id="wheel"></div>
+          <figcaption class="legend">
+            <span><i class="lg soft"></i>Armónicos</span>
+            <span><i class="lg tense"></i>Tensos</span>
+            <span id="hs-label"></span>
+          </figcaption>
+        </figure>
+
+        <div class="results">
+          <section class="block">
+            <h2>Los tres grandes</h2>
+            <div class="big3" id="big3"></div>
+          </section>
+
+          <section class="block">
+            <h2>Planetas</h2>
+            <table class="table" id="t-planets"></table>
+          </section>
+
+          <section class="block">
+            <h2>Aspectos</h2>
+            <div id="aspects"></div>
+          </section>
+
+          <section class="block">
+            <h2>Equilibrio</h2>
+            <div class="balance" id="balance"></div>
+          </section>
+
+          <section class="block" id="houses-block">
+            <h2>Casas</h2>
+            <div class="houses" id="houses"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Efemérides: <a href="https://github.com/cosinekitty/astronomy" target="_blank" rel="noopener">Astronomy Engine</a> · Zonas horarias: tz-lookup + IANA · Ciudades: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js" integrity="sha384-LTVHvxfbG3XHla4Lu0C0s9U18B2sBOuzJIeOoVHm2t05SOOORvMbBMEVjXrGau9g" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@photostructure/tz-lookup@11.7.0/tz.js" integrity="sha384-pcNp83JCLtH2AjMn2L88ZP852oNdQA2RNmIOWED8WgkU0Kr6rkTMXunp+nlDnWGn" crossorigin="anonymous"></script>
+  <script src="js/chiron-data.js"></script>
+  <script src="js/astro.js"></script>
+  <script src="js/texts.js"></script>
+  <script src="js/wheel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
